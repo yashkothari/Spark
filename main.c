@@ -1,5 +1,6 @@
 /* DriverLib Includes */
-#include </Users/janujanselva/workspace_v7/msp432_driverlib/driverlib/MSP432P4xx/driverlib.h>
+//#include </Users/janujanselva/workspace_v7/msp432_driverlib/driverlib/MSP432P4xx/driverlib.h>
+#include <driverlib.h>
 
 /* Standard Includes */
 #include <stdint.h>
@@ -22,7 +23,7 @@
 // This configuration is for charge signal
 Timer_A_UpDownModeConfig upDownConfigA1 =
 {
-         TIMER_A_CLOCKSOURCE_SMCLK,             // SMCLK Clock SOurce = set to 128 KHz, 32 kHz or 10 kHz
+        TIMER_A_CLOCKSOURCE_SMCLK,              // SMCLK Clock SOurce = set to 128 KHz, 32 kHz or 10 kHz
         TIMER_A_CLOCKSOURCE_DIVIDER_2,          // SMCLK/1
         TIMER_PERIOD,                           // 65535 tick period (MAX for 16 bit timer)
         TIMER_A_TAIE_INTERRUPT_DISABLE,         // Disable Timer interrupt
@@ -47,7 +48,7 @@ const Timer_A_UpModeConfig upConfig_deadTime =
         TIMER_A_CLOCKSOURCE_DIVIDER_2,         // SMCLK/1 = 128 kHz
         DEAD_TIME,                              // 65535/2 + 6553 tick period
         TIMER_A_TAIE_INTERRUPT_DISABLE,         // Disable Timer interrupt
-        TIMER_A_CCIE_CCR0_INTERRUPT_ENABLE ,    // Enable CCR0 interrupt
+        TIMER_A_CCIE_CCR0_INTERRUPT_ENABLE,    // Enable CCR0 interrupt
         TIMER_A_DO_CLEAR                        // Clear value
 };
 
