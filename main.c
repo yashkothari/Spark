@@ -2,10 +2,29 @@
 #include <stdbool.h>
 #include "msp432.h"
 
+void updown_run_charge_discharge_sequence() {
+    //using updown timer
+    //TAxCCR1 for charge
+    //TAxCCR2 for discharge
+    //tdead = ttimer * (TAxCCR1 - TAxCCR2)
+
+    TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN;
+            // bits15-10=XXXXXX, reserved
+            // bits9-8=10,       clock source to SMCLK
+            // bits7-6=00,       input clock divider /1
+            // bits5-4=00,       up/down mode
+            // bit3=X,           reserved
+            // bit2=0,           set this bit to clear
+            // bit1=0,           interrupt disable
+            // bit0=0,           clear interrupt pending
+}
+
+
 int main(void) {
     //setup ISRs
     //setup timers
-    //any other setup
+
+    // TODO: init clock
 
     //init timer
     TIMER_A0->CTL = TIMER_A_CTL_SSEL__SMCLK | TIMER_A_CTL_ID__1 |
@@ -67,6 +86,8 @@ int main(void) {
     TIMER_A0->CCR[1] = 0x5555; //TODO
     TIMER_A0->CCR[2] = 0xAAAA; //TODO
 
+    //TODO: register interrupts
+
     updown_run_charge_discharge_sequence();
 
     while(1) {
@@ -93,19 +114,3 @@ void yk_run_charge_discharge_sequence() {
     //elapse timer1
 }
 
-void updown_run_charge_discharge_sequence() {
-    //using updown timer
-    //TAxCCR1 for charge
-    //TAxCCR2 for discharge
-    //tdead = ttimer * (TAxCCR1 - TAxCCR2)
-
-    TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN;
-            // bits15-10=XXXXXX, reserved
-            // bits9-8=10,       clock source to SMCLK
-            // bits7-6=00,       input clock divider /1
-            // bits5-4=00,       up/down mode
-            // bit3=X,           reserved
-            // bit2=0,           set this bit to clear
-            // bit1=0,           interrupt disable
-            // bit0=0,           clear interrupt pending
-}
