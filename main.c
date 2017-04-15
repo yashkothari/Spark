@@ -24,7 +24,26 @@ int main(void) {
     //setup ISRs
     //setup timers
 
-    // TODO: init clock
+    //init clk
+    CS->KEY = 0x695A;
+    CS->CTL0 = CS_CTL0_DCORSEL_1;
+            // bits31-24=XXXXXXXX,  reserved
+            // bit23=0,             DCO on if used as source for MCLK, HSMCLK, SMCLK
+            // bit22=0,             internal resistor mode
+            // bit21-19=XXX,        reserved
+            // bit18-16=000,        1.5 MHz
+            // bit15-10=XXXXXX,     reserved
+            // bit9-0=0000000000,   clear interrupt pending
+    CS->CTL1 = CS_CTL1_SELS__DCOCLK | CS_CTL1_SELM__DCOCLK;
+    // TODO: Add bit comments
+    CS->CLKEN = CS_CLKEN_SMCLK_EN | CS_CLKEN_MCLK_EN;
+    // TODO: Add bit comments
+    CS->KEY = 0x0;
+
+    //GPIO setup
+
+
+
 
     //init timer
     TIMER_A0->CTL = TIMER_A_CTL_SSEL__SMCLK | TIMER_A_CTL_ID__1 |
