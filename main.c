@@ -8,6 +8,7 @@ void updown_run_charge_discharge_sequence() {
     //TAxCCR2 for discharge
     //tdead = ttimer * (TAxCCR1 - TAxCCR2)
 
+    TIMER_A0->CTL &= ~BIT2;
     TIMER_A0->CTL |= TIMER_A_CTL_MC__UPDOWN;
             // bits15-10=XXXXXX, reserved
             // bits9-8=10,       clock source to SMCLK
@@ -20,98 +21,64 @@ void updown_run_charge_discharge_sequence() {
 }
 
 
-int main(void) {
-    //init clk
-    CS->KEY = 0x695A;
-    CS->CTL0 = CS_CTL0_DCORSEL_1;
-            // bits31-24=XXXXXXXX,  reserved
-            // bit23=0,             DCO on if used as source for MCLK, HSMCLK, SMCLK
-            // bit22=0,             internal resistor mode
-            // bit21-19=XXX,        reserved
-            // bit18-16=000,        1.5 MHz
-            // bit15-10=XXXXXX,     reserved
-            // bit9-0=0000000000,   clear interrupt pending
-    CS->CTL1 = CS_CTL1_SELS__DCOCLK | CS_CTL1_SELM__DCOCLK;
-    // TODO: Add bit comments
-    CS->CLKEN = CS_CLKEN_SMCLK_EN | CS_CLKEN_MCLK_EN;
-    // TODO: Add bit comments
-    CS->KEY = 0x0;
+void main(void) {
+
+    WDT_A->CTL = WDT_A_CTL_PW | WDT_A_CTL_HOLD;  /* Stop watchdog timer */
 
     //GPIO setup
-    P2->DIR = BIT4 | BIT5;
-    P2->SEL0 = 0x0;
-    P2->SEL1 = 0x0;
-
-
-
+    P2->SEL0 |= 0x30;
+    P2->SEL1 &= 0x0;
+    P2->DIR |= 0x30;
 
     //init timer
-//    TIMER_A0->CTL = TIMER_A_CTL_SSEL__SMCLK | TIMER_A_CTL_ID__1 |
-//                    TIMER_A_CTL_MC__STOP | TIMER_A_CTL_CLR;
-//            // bits15-10=XXXXXX, reserved
-//            // bits9-8=10,       clock source to SMCLK
-//            // bits7-6=00,       input clock divider /1
-//            // bits5-4=00,       stop mode
-//            // bit3=X,           reserved
-//            // bit2=0,           set this bit to clear
-//            // bit1=0,           interrupt disable
-//            // bit0=0,           clear interrupt pending
-//
-////    TIMER_A0->CCTL[0] = TIMER_A_CCTLN_CM__NONE; //TODO: check if I need to even initialize this
-//            // bits15-14=00,     no capture
-//            // bits13-12=,
-//            // bit11=,
-//            // bit10=,
-//            // bit9=X,           reserved
-//            // bit8=0,           compare mode
-//            // bits7-5=,
-//            // bit4=1,           interrupt disable
-//            // bit3=X,           reserved
-//            // bit2=X,           don't care
-//            // bit1=0,           clear capture overflow
-//            // bit0=0,           clear interrupt pending
-//
-//    //charge signal
-//    TIMER_A0->CCTL[1] = TIMER_A_CCTLN_CM__NONE | TIMER_A_CCTLN_OUTMOD_6 | TIMER_A_CCTLN_CCIE;
-//            // bits15-14=00,     no capture
-//            // bits13-12=XX,     don't care
-//            // bit11=X,          don't care
-//            // bit10=X,          don't care
-//            // bit9=X,           reserved
-//            // bit8=0,           compare mode
-//            // bits7-5=110,      toggle/set mode
-//            // bit4=1,           interrupt enable
-//            // bit3=X,           reserved
-//            // bit2=X,           don't care
-//            // bit1=0,           clear capture overflow
-//            // bit0=0,           clear interrupt pending
-//
-//    //discharge signal
-//    TIMER_A0->CCTL[2] = TIMER_A_CCTLN_CM__NONE | TIMER_A_CCTLN_OUTMOD_2 | TIMER_A_CCTLN_CCIE;
-//            // bits15-14=00,     no capture
-//            // bits13-12=XX,     don't care
-//            // bit11=X,          don't care
-//            // bit10=X,          don't care
-//            // bit9=X,           reserved
-//            // bit8=0,           compare mode
-//            // bits7-5=010,      toggle/reset mode
-//            // bit4=1,           interrupt enable
-//            // bit3=X,           reserved
-//            // bit2=X,           don't care
-//            // bit1=0,           clear capture overflow
-//            // bit0=0,           clear interrupt pending
-//
-//    TIMER_A0->CCR[0] = 0xFFFF;
-//    TIMER_A0->CCR[1] = 0x5555; //TODO
-//    TIMER_A0->CCR[2] = 0xAAAA; //TODO
+    TIMER_A0->CTL = TIMER_A_CTL_SSEL__SMCLK | TIMER_A_CTL_ID__1 |
+                    TIMER_A_CTL_MC__STOP | TIMER_A_CTL_CLR;
+            // bits15-10=XXXXXX, reserved
+            // bits9-8=10,       clock source to SMCLK
+            // bits7-6=00,       input clock divider /1
+            // bits5-4=00,       stop mode
+            // bit3=X,           reserved
+            // bit2=1,           set this bit to clear
+            // bit1=0,           interrupt disable
+            // bit0=0,           clear interrupt pending
 
-    //TODO: register interrupts
+    //charge signal
+    TIMER_A0->CCTL[1] = TIMER_A_CCTLN_CM__NONE | TIMER_A_CCTLN_OUTMOD_2;// | TIMER_A_CCTLN_CCIE;
+            // bits15-14=00,     no capture
+            // bits13-12=XX,     don't care
+            // bit11=X,          don't care
+            // bit10=X,          don't care
+            // bit9=X,           reserved
+            // bit8=0,           compare mode
+            // bits7-5=110,      toggle/set mode
+            // bit4=0,           interrupt enable
+            // bit3=X,           read-only
+            // bit2=X,           don't care
+            // bit1=0,           clear capture overflow
+            // bit0=0,           clear interrupt pending
 
-//    updown_run_charge_discharge_sequence();
+    //discharge signal
+    TIMER_A0->CCTL[2] = TIMER_A_CCTLN_CM__NONE | TIMER_A_CCTLN_OUTMOD_6;// | TIMER_A_CCTLN_CCIE;
+            // bits15-14=00,     no capture
+            // bits13-12=XX,     don't care
+            // bit11=X,          don't care
+            // bit10=X,          don't care
+            // bit9=X,           reserved
+            // bit8=0,           compare mode
+            // bits7-5=010,      toggle/reset mode
+            // bit4=0,           interrupt enable
+            // bit3=X,           reserved
+            // bit2=X,           don't care
+            // bit1=0,           clear capture overflow
+            // bit0=0,           clear interrupt pending
 
-    while(1) {
-        P2->OUT = 0x20;
-    }
+    TIMER_A0->CCR[0] = 0xFFFF;
+    TIMER_A0->CCR[1] = 0x5555;
+    TIMER_A0->CCR[2] = 0xAAAA;
+
+    updown_run_charge_discharge_sequence();
+
+    while(1) { }
 }
 
 void yk_run_charge_discharge_sequence() {
