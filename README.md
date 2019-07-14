@@ -1,2 +1,2 @@
 # Spark
-The most LIT function generator
+Function generator embedded system to control high voltage stress tests
